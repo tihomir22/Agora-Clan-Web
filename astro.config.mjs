@@ -14,6 +14,8 @@ export default defineConfig({
   site: SITE_URL,
   base: BASE_PATH,
   trailingSlash: 'never',
+  // Astro 7 cambia el default a JSX; true conserva el espaciado HTML anterior.
+  compressHTML: true,
   build: { inlineStylesheets: 'auto', format: 'file' },
   // 'hover' en vez de 'viewport': no se descargan las cinco páginas nada más entrar
   prefetch: { prefetchAll: true, defaultStrategy: 'hover' },

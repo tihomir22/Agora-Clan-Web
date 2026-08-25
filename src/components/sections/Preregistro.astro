@@ -204,7 +204,7 @@ const perks = [
   </div>
 </section>
 
-<script define:vars={{ endpoint: FORM.endpoint, minAge: FORM.minAge }}>
+<script is:inline define:vars={{ endpoint: FORM.endpoint, minAge: FORM.minAge }}>
   const form = document.querySelector('[data-prereg]');
   if (form) {
     const year = form.querySelector('#pr-year');

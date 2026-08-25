@@ -236,7 +236,7 @@ const frames = pantallas.flatMap((p) =>
   }
 </style>
 
-<script define:vars={{ frames: frames.map((f) => ({ id: f.id, si: f.si, cap: f.cap })) }}>
+<script is:inline define:vars={{ frames: frames.map((f) => ({ id: f.id, si: f.si, cap: f.cap })) }}>
   const root = document.querySelector('[data-showcase]');
   if (root) {
     const tabs = [...root.querySelectorAll('[data-tab]')];

@@ -61,11 +61,17 @@ El workflow `.github/workflows/deploy.yml` conserva un build compatible con GitH
 `src/pages/404.astro` lleva las rutas `/r/*` y `/t/*` a sus artefactos `r.html` y `t.html` sin perder
 parámetros.
 
-Cloudflare Pages usa `public/_redirects` para servir esos mismos artefactos con status 200:
+Cloudflare Pages usa `public/_redirects` para hacer proxy interno de las rutas públicas a los
+destinos extensionless con status 200:
 
 ```text
-/r/* /r.html 200
-/t/* /t.html 200
+/r/* /r 200
+/t/* /t 200
 ```
+
+Aunque Astro conserva los artefactos de build `dist/r.html` y `dist/t.html`, los destinos públicos
+de `_redirects` no deben incluir `.html`: Pages normaliza un destino HTML con `308` y pierde el
+splat antes de que `DeepLinkFallback` pueda leer el token. El proxy extensionless conserva la URL
+`/r/<codigo>` o `/t/<token>` y entrega la UI con HTTP 200.
 
 Los endpoints `/.well-known/*` no se redirigen.

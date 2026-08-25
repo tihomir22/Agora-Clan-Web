@@ -65,10 +65,15 @@ test('Cloudflare headers protect association files and immutable Astro assets', 
   }
 });
 
-test('Cloudflare rewrites only deep-link routes to the file-format artifacts', async () => {
-  const redirects = (await read('public/_redirects')).trim().split(/\r?\n/);
-  assert.deepEqual(redirects, ['/r/* /r.html 200', '/t/* /t.html 200']);
-  assert.doesNotMatch(await read('public/_redirects'), /\.well-known/);
+test('Cloudflare proxies deep-link routes to extensionless destinations', async () => {
+  const redirectsSource = await read('public/_redirects');
+  const redirects = redirectsSource.trim().split(/\r?\n/);
+  assert.deepEqual(redirects, ['/r/* /r 200', '/t/* /t 200']);
+  assert.doesNotMatch(redirectsSource, /\/r\.html|\/t\.html/);
+  // Cloudflare Pages normalizes an HTML destination with a 308 before the
+  // fallback can read the splat, so these proxy targets must stay extensionless.
+  assert.doesNotMatch(redirectsSource, /\.html\s+200/);
+  assert.doesNotMatch(redirectsSource, /\.well-known/);
 });
 
 test('deep-link pages are thin wrappers around one shared fallback component', async () => {

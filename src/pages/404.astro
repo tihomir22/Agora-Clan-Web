@@ -26,13 +26,23 @@ import ladon from '../assets/mascotas/ladon-lupa.png';
     </div>
   </section>
 
-  <!-- En GitHub Pages no hay redirecciones de servidor: los enlaces de referido
-       /r/CODIGO caen aquí y se resuelven en el navegador. -->
-  <script is:inline define:vars={{ base: url('/'), destino: url('/descargar') }}>
+  <!-- GitHub Pages no tiene rewrites: los deep links caen aquí y se llevan al
+       artefacto estático correspondiente, conservando query string y hash. -->
+  <script is:inline define:vars={{ base: url('/'), referralArtifact: url('/r.html'), tournamentArtifact: url('/t.html') }}>
     (() => {
-      const ruta = location.pathname.slice(base.replace(/\/$/, '').length);
-      const m = ruta.match(/^\/r\/([A-Za-z0-9_-]{1,32})\/?$/);
-      if (m) location.replace(destino + '?ref=' + encodeURIComponent(m[1]) + '#pre-registro');
+      const basePath = new URL(base, location.origin).pathname.replace(/\/$/, '');
+      const pathname = location.pathname;
+      const route = basePath && pathname.startsWith(basePath) ? pathname.slice(basePath.length) : pathname;
+      const match = route.match(/^\/(r|t)\/([^/?#]+)\/?$/);
+      if (!match) return;
+
+      const params = new URLSearchParams(location.search);
+      const parameter = match[1] === 'r' ? 'ref' : 'token';
+      if (!params.has(parameter)) params.set(parameter, match[2]);
+
+      const destination = match[1] === 'r' ? referralArtifact : tournamentArtifact;
+      const query = params.toString();
+      location.replace(destination + (query ? '?' + query : '') + location.hash);
     })();
   </script>
 </Base>

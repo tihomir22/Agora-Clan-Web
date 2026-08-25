@@ -1,0 +1,13 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appID": "84F6K9ACAA.com.agoraclan.app",
+        "paths": [
+          "/r/*",
+          "/t/*"
+        ]
+      }
+    ]
+  }
+}

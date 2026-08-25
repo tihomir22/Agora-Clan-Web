@@ -41,8 +41,8 @@ jobs:
 
       - run: npm ci
 
-      - name: Compilar
-        run: npm run build
+      - name: Verificar y compilar
+        run: npm run verify
         env:
           SITE_URL: ${{ steps.pages.outputs.origin }}
           BASE_PATH: ${{ vars.BASE_PATH || steps.pages.outputs.base_path }}

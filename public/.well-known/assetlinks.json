@@ -1,0 +1,15 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.agoraclan.app",
+      "sha256_cert_fingerprints": [
+        "F6:9A:E0:99:47:F9:62:7B:56:21:CD:69:8D:F3:E0:6A:25:C9:E5:9A:6A:38:54:BF:87:1D:D7:47:34:74:7D:5A",
+        "A0:EC:14:8C:D8:A8:EF:4A:B4:CC:C8:5C:65:BD:DA:AF:A1:E0:B6:53:A7:88:F9:FE:F9:0C:2B:B9:92:9E:DB:4C"
+      ]
+    }
+  }
+]

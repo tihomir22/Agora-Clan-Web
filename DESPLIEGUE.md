@@ -1,92 +1,71 @@
-# agoraclan.com → GitHub Pages
+# Despliegue de Agora Clan Web
 
-El DNS lo llevas en Cloudflare y ahora mismo el dominio raíz apunta a Hostinger. Hay que cambiar
-tres cosas del DNS y una de GitHub. El correo, la API y los subdominios **no se tocan**.
+## Fuente única
 
----
+La fuente canónica de la landing de Ricardo es el repositorio:
 
-## 1 · Cloudflare (DNS)
+`AgoraSocialGaming/Agora-Clan-Web`
 
-### Borrar
-| Tipo | Nombre | Contenido actual | Por qué |
-|---|---|---|---|
-| A | `agoraclan.com` | `34.120.137.41` | Es el servidor de Hostinger |
-| AAAA | `agoraclan.com` | `2600:1901:0:84ef::` | Igual, IPv6 de Hostinger |
-| NS | `agoraclan.com` | `ns1.dns-parking.com` | Sobra: manda Cloudflare |
-| NS | `agoraclan.com` | `ns2.dns-parking.com` | Igual |
+El objetivo de hosting es **Cloudflare Pages**. El build se ejecuta con `npm ci` y `npm run verify`;
+el directorio publicado es `dist/`.
 
-### Crear (los cuatro, con **Solo DNS**, nube gris)
-| Tipo | Nombre | Contenido | Proxy |
-|---|---|---|---|
-| A | `@` | `185.199.108.153` | Solo DNS |
-| A | `@` | `185.199.109.153` | Solo DNS |
-| A | `@` | `185.199.110.153` | Solo DNS |
-| A | `@` | `185.199.111.153` | Solo DNS |
+`public/CNAME` se conserva por ahora. El corte del host y cualquier cambio de DNS son una fase
+posterior y no forman parte de este despliegue.
 
-Opcional, IPv6 (mismo criterio, Solo DNS): `2606:50c0:8000::153`, `2606:50c0:8001::153`,
-`2606:50c0:8002::153`, `2606:50c0:8003::153` como registros `AAAA` de `@`.
+No se debe reactivar ni usar como fuente:
 
-> El proxy naranja tiene que estar **apagado** en estos registros. Con el proxy activado GitHub no
-> puede validar el dominio ni emitir el certificado.
+- `AgoraLabs-Org/agora-landing`
+- Netlify o cualquier configuración de despliegue de Netlify
 
-### Editar
-| Tipo | Nombre | Antes | Ahora | Proxy |
-|---|---|---|---|---|
-| CNAME | `www` | `connect.hostinger.com` | `agorasocialgaming.github.io` | Solo DNS |
+## Gates obligatorios
 
-### No tocar nada de esto
-- **Correo**: los `MX` de Hostinger, el `SPF`, el `DMARC`, los DKIM de `hostingermail-a/b/c`,
-  `autoconfig`, `autodiscover`, y todo lo de `send.agoraclan.com` (Amazon SES).
-- **Servicios**: `api`, `staging-api` (Railway), `app`, `admin` (Pages.dev) y `assets` (R2).
-- **CAA**: ya tienes `letsencrypt.org` con `issue` e `issuewild`, que es justo lo que necesita
-  GitHub Pages para el certificado. Déjalos como están.
-- El `TXT` de `google-site-verification`.
+### 1. Verificación local
 
----
+Desde la raíz del repositorio:
 
-## 2 · GitHub
+```bash
+npm ci
+npm run verify
+git diff --check
+```
 
-1. **Settings → Pages → Custom domain**: escribe `agoraclan.com` y pulsa guardar.
-2. Espera al «DNS check successful» (suele tardar entre unos minutos y una hora).
-3. Marca **Enforce HTTPS** en cuanto se pueda pulsar.
-4. **Actions → Desplegar en GitHub Pages → Run workflow**. Este paso importa: al detectar el
-   dominio, el sitio se recompila con la base `/` y las URLs canónicas pasan a `agoraclan.com`.
+`verify` compila la landing con Astro y comprueba los contratos de deep links, los ficheros de
+asociación, las cabeceras, los rewrites y los artefactos `dist/r.html` y `dist/t.html`.
 
-El repositorio ya trae `public/CNAME` con el dominio, así que cada despliegue lo mantiene y no se
-pierde la configuración.
+### 2. Preview de Cloudflare Pages
 
----
+Cada cambio se revisa primero en un **Preview Deployment** de Cloudflare Pages. Hay que comprobar,
+como mínimo:
 
-## 3 · Comprobar que ha ido bien
+- `/`, `/r/CODIGO` y `/t/TOKEN` devuelven la UI correcta con HTTP 200.
+- Los botones de los deep links conservan el case y apuntan al destino esperado.
+- `/.well-known/apple-app-site-association` y `/.well-known/assetlinks.json` devuelven JSON y no
+  sufren ningún redirect.
+- `/_astro/*` aparece con cache immutable.
+- Con `APP.live = false` no se anuncian App Store ni Google Play como disponibles.
+- El fallback `/404` de GitHub Pages conserva query string y hash para `/r/*` y `/t/*`.
 
-- `https://agoraclan.com` carga con estilos.
-- `https://www.agoraclan.com` redirige al dominio sin www.
-- `https://agorasocialgaming.github.io/Agora-Clan-Web/` redirige a `agoraclan.com`.
-- Ver código fuente: los enlaces tienen que poner `/_astro/…` (sin `/Agora-Clan-Web/` delante).
-- En Search Console, envía `https://agoraclan.com/sitemap.xml`.
+### 3. Producción
 
----
+El paso a producción requiere un OK explícito separado después de revisar el preview. No se
+despliega, cambia el dominio ni se activan DNS por inferencia desde un build verde.
 
-## 4 · El formulario: rectifico el diagnóstico
+El cambio de DNS es un gate independiente: no se modifica mientras no exista autorización
+explícita para el corte del host. El correo, la API, `app`, `admin` y el resto de servicios quedan
+fuera de esta operación.
 
-Viendo tu DNS, `api.agoraclan.com` **ya existe** (CNAME a Railway, con proxy de Cloudflare). Así
-que el problema no es que el dominio no resuelva: es que el navegador bloquea la respuesta o el
-servidor no contesta como espera el formulario. Por orden de probabilidad:
+## Compatibilidad con GitHub Pages
 
-1. **CORS.** La API tiene que devolver
-   `Access-Control-Allow-Origin: https://agorasocialgaming.github.io` (y después
-   `https://agoraclan.com`), y responder al preflight `OPTIONS` con
-   `Access-Control-Allow-Methods: POST, OPTIONS` y `Access-Control-Allow-Headers: Content-Type`.
-   Sin eso, el navegador tira la respuesta y el `fetch` falla sin decir por qué.
-2. **La ruta.** El formulario llama a `POST /api/v1/preregister` con
-   `{ "username", "email", "birth_date": "AAAA-MM" }`. Si tu API espera otra ruta u otros campos,
-   dímelo y lo cambio.
-3. **El servicio dormido.** Si el proyecto de Railway está en pausa, la primera llamada puede
-   tardar más de lo que aguanta el navegador.
+El workflow `.github/workflows/deploy.yml` conserva un build compatible con GitHub Pages y ejecuta
+`npm run verify` antes de subir `dist/`. GitHub Pages no tiene rewrites de servidor, por eso
+`src/pages/404.astro` lleva las rutas `/r/*` y `/t/*` a sus artefactos `r.html` y `t.html` sin perder
+parámetros.
 
-Para verlo en un segundo: abre la web, pulsa F12 → pestaña **Red**, envía el formulario y mira la
-línea de `preregister`. Si pone «CORS error» es el punto 1; si pone 404 es el 2; si se queda en
-«pending» y muere, es el 3.
+Cloudflare Pages usa `public/_redirects` para servir esos mismos artefactos con status 200:
 
-Mientras tanto puedes apuntar el formulario a otro sitio sin tocar código, compilando con la
-variable `PUBLIC_FORM_ENDPOINT`.
+```text
+/r/* /r.html 200
+/t/* /t.html 200
+```
+
+Los endpoints `/.well-known/*` no se redirigen.

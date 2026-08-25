@@ -303,12 +303,12 @@ const tabs = [
 </section>
 
 <script>
-  const bloque = document.querySelector('[data-recompensas]');
+  const bloque = document.querySelector<HTMLElement>('[data-recompensas]');
   if (bloque) {
-    const tabs = [...bloque.querySelectorAll('[data-rec-tab]')];
-    const paneles = [...bloque.querySelectorAll('[data-rec-panel]')];
+    const tabs = [...bloque.querySelectorAll<HTMLButtonElement>('[data-rec-tab]')];
+    const paneles = [...bloque.querySelectorAll<HTMLElement>('[data-rec-panel]')];
 
-    const abrir = (id) => {
+    const abrir = (id: string | undefined) => {
       tabs.forEach((t) => {
         const on = t.dataset.recTab === id;
         t.setAttribute('aria-selected', String(on));
@@ -323,13 +323,13 @@ const tabs = [
 
     tabs.forEach((t) => t.addEventListener('click', () => abrir(t.dataset.recTab)));
     bloque.addEventListener('keydown', (e) => {
-      if (!['ArrowRight', 'ArrowLeft'].includes(e.key) || !e.target.dataset?.recTab) return;
+      if (!(e.target instanceof HTMLElement) || !['ArrowRight', 'ArrowLeft'].includes(e.key) || !e.target.dataset.recTab) return;
       e.preventDefault();
       const orden = tabs.map((t) => t.dataset.recTab);
       const at = orden.indexOf(e.target.dataset.recTab);
       const next = orden[(at + (e.key === 'ArrowRight' ? 1 : -1) + orden.length) % orden.length];
       abrir(next);
-      tabs[orden.indexOf(next)].focus();
+      tabs[orden.indexOf(next)]?.focus();
     });
   }
 </script>

@@ -10,7 +10,7 @@
     "check": "astro check",
     "postbuild": "node scripts/postbuild.mjs",
     "test:deep-links": "node --test tests/deep-link-associations.test.mjs",
-    "verify": "npm run build && npm run test:deep-links"
+    "verify": "npm run check && npm run build && npm run test:deep-links"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",
@@ -22,5 +22,9 @@
     "sharp": "^0.35.3",
     "simple-icons": "^16.28.0",
     "tailwindcss": "^4.3.3"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
   }
 }

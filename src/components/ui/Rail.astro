@@ -58,12 +58,12 @@ const { label, class: className = '', wrap = false } = Astro.props;
 </div>
 
 <script>
-  document.querySelectorAll('[data-rail]').forEach((rail) => {
-    const track = rail.querySelector('[data-rail-track]');
-    const prev = rail.querySelector('[data-rail-prev]');
-    const next = rail.querySelector('[data-rail-next]');
-    const fadeStart = rail.querySelector('[data-rail-fade="start"]');
-    const fadeEnd = rail.querySelector('[data-rail-fade="end"]');
+  document.querySelectorAll<HTMLElement>('[data-rail]').forEach((rail) => {
+    const track = rail.querySelector<HTMLElement>('[data-rail-track]');
+    const prev = rail.querySelector<HTMLButtonElement>('[data-rail-prev]');
+    const next = rail.querySelector<HTMLButtonElement>('[data-rail-next]');
+    const fadeStart = rail.querySelector<HTMLElement>('[data-rail-fade="start"]');
+    const fadeEnd = rail.querySelector<HTMLElement>('[data-rail-fade="end"]');
     if (!track) return;
 
     const step = () => {

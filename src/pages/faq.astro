@@ -190,12 +190,12 @@ const todas = grupos.flatMap((g) => g.items);
 </Base>
 
 <script>
-  const bar = document.querySelector('[data-faq-filters]');
+  const bar = document.querySelector<HTMLElement>('[data-faq-filters]');
   if (bar) {
-    const buttons = [...bar.querySelectorAll('[data-filter]')];
-    const groups = [...document.querySelectorAll('[data-faq-group]')];
+    const buttons = [...bar.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+    const groups = [...document.querySelectorAll<HTMLElement>('[data-faq-group]')];
     bar.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-filter]');
+      const btn = e.target instanceof Element ? e.target.closest<HTMLButtonElement>('[data-filter]') : null;
       if (!btn) return;
       const key = btn.dataset.filter;
       buttons.forEach((b) => {

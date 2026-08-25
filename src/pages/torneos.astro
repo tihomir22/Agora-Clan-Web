@@ -494,7 +494,7 @@ const faqs = [
 
 <script>
   // En escritorio el bloque de comunidad va siempre desplegado; en móvil arranca plegado.
-  const comunidad = document.querySelector('[data-comunidad]');
+  const comunidad = document.querySelector<HTMLDetailsElement>('[data-comunidad]');
   if (comunidad) {
     const ancho = window.matchMedia('(min-width: 1024px)');
     const sincronizar = () => {

@@ -224,6 +224,13 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
 </style>
 
 <script>
+  const lenisWindow = window as Window & {
+    __lenis?: {
+      start: () => void;
+      stop: () => void;
+    };
+  };
+
   /* --- Fondo de la cabecera al hacer scroll --- */
   const bar = document.querySelector('[data-header-bar]');
   const solid = () => {
@@ -237,11 +244,11 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   solid();
 
   /* --- Pastilla de preselección en escritorio --- */
-  const nav = document.querySelector('[data-desk-nav]');
-  const pill = document.querySelector('[data-desk-pill]');
+  const nav = document.querySelector<HTMLElement>('[data-desk-nav]');
+  const pill = document.querySelector<HTMLElement>('[data-desk-pill]');
   if (nav && pill) {
-    const links = [...nav.querySelectorAll('[data-desk-link]')];
-    const move = (el) => {
+    const links = [...nav.querySelectorAll<HTMLElement>('[data-desk-link]')];
+    const move = (el: HTMLElement) => {
       if (!el) return;
       pill.style.width = `${el.offsetWidth}px`;
       pill.style.transform = `translateX(${el.offsetLeft}px)`;
@@ -259,11 +266,11 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
   }
 
   /* --- Menú móvil --- */
-  const menu = document.querySelector('[data-menu]');
-  const veil = document.querySelector('[data-menu-veil]');
-  const panel = document.querySelector('[data-menu-panel]');
-  const openBtn = document.querySelector('[data-menu-open]');
-  const closeBtn = document.querySelector('[data-menu-close]');
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const veil = document.querySelector<HTMLElement>('[data-menu-veil]');
+  const panel = document.querySelector<HTMLElement>('[data-menu-panel]');
+  const openBtn = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  const closeBtn = document.querySelector<HTMLButtonElement>('[data-menu-close]');
 
   const open = () => {
     if (!menu) return;
@@ -275,7 +282,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     });
     openBtn?.setAttribute('aria-expanded', 'true');
     document.documentElement.style.overflow = 'hidden';
-    window.__lenis?.stop();
+    lenisWindow.__lenis?.stop();
     closeBtn?.focus({ preventScroll: true });
   };
 
@@ -286,7 +293,7 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
     panel?.classList.add('opacity-0', '-translate-y-3');
     openBtn?.setAttribute('aria-expanded', 'false');
     document.documentElement.style.overflow = '';
-    window.__lenis?.start();
+    lenisWindow.__lenis?.start();
     setTimeout(() => menu.classList.add('hidden'), 300);
   };
 

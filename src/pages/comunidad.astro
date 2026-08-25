@@ -191,14 +191,14 @@ const numeros = [
 </Base>
 
 <script>
-  const form = document.querySelector('[data-comunidad-form]');
+  const form = document.querySelector<HTMLFormElement>('[data-comunidad-form]');
   if (form) {
-    const boton = form.querySelector('[data-comunidad-submit]');
-    const texto = form.querySelector('[data-comunidad-texto]');
-    const aviso = form.querySelector('[data-comunidad-error]');
-    const exito = document.querySelector('[data-comunidad-ok]');
+    const boton = form.querySelector<HTMLButtonElement>('[data-comunidad-submit]');
+    const texto = form.querySelector<HTMLElement>('[data-comunidad-texto]');
+    const aviso = form.querySelector<HTMLElement>('[data-comunidad-error]');
+    const exito = document.querySelector<HTMLElement>('[data-comunidad-ok]');
 
-    const error = (msg) => {
+    const error = (msg: string) => {
       if (!aviso) return;
       aviso.textContent = msg;
       aviso.classList.remove('hidden');
@@ -209,7 +209,9 @@ const numeros = [
       aviso?.classList.add('hidden');
 
       // Validación del navegador, con foco en el primer campo que falle
-      const invalido = [...form.querySelectorAll('input, textarea')].find((c) => !c.checkValidity());
+      const invalido = [...form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement>('input, textarea')].find(
+        (c) => !c.checkValidity(),
+      );
       if (invalido) {
         invalido.setAttribute('aria-invalid', 'true');
         invalido.focus();
@@ -218,7 +220,7 @@ const numeros = [
       }
       form.querySelectorAll('[aria-invalid]').forEach((c) => c.removeAttribute('aria-invalid'));
 
-      boton.disabled = true;
+      if (boton) boton.disabled = true;
       if (texto) texto.textContent = 'Enviando…';
 
       try {
@@ -240,7 +242,7 @@ const numeros = [
         console.error('[comunidad] envío fallido', err);
         error('No hemos podido conectar. Escríbenos a support@agoraclan.com y lo vemos.');
       } finally {
-        boton.disabled = false;
+        if (boton) boton.disabled = false;
         if (texto) texto.textContent = 'Enviar solicitud';
       }
     });

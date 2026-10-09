@@ -3,10 +3,45 @@ import { access, readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const read = (relativePath) => readFile(resolve(root, relativePath), 'utf8');
 const readJson = async (relativePath) => JSON.parse(await read(relativePath));
+const assertIncludes = (value, expected) => assert.ok(value.includes(expected), `expected output to include: ${expected}`);
+
+async function githubPagesFallback(pathname, search = '', hash = '') {
+  const html = await read('dist/404.html');
+  const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  const fallback = scripts.find((script) => script.includes('URLSearchParams(location.search)'));
+  assert.ok(fallback, 'the built 404 page must contain the GitHub Pages fallback');
+
+  const location = {
+    origin: 'https://agoraclan.com',
+    pathname,
+    search,
+    hash,
+    replace: (target) => { location.redirect = target; },
+  };
+  runInNewContext(fallback, { location, URL, URLSearchParams });
+  return location.redirect ?? null;
+}
+
+async function legacyLegalAlias(search = '', hash = '') {
+  const html = await read('dist/terminos-y-politicas/index.html');
+  const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  const redirect = scripts.find((script) => script.includes("new URL('../assets/legal/privacy.html'"));
+  assert.ok(redirect, 'the legacy legal route must redirect to the published privacy policy');
+
+  const location = {
+    href: 'https://agoraclan.com/terminos-y-politicas/',
+    search,
+    hash,
+    replace: (target) => { location.redirect = target; },
+  };
+  runInNewContext(redirect, { location, URL });
+  return location.redirect ?? null;
+}
 
 const productionFingerprints = [
   'F6:9A:E0:99:47:F9:62:7B:56:21:CD:69:8D:F3:E0:6A:25:C9:E5:9A:6A:38:54:BF:87:1D:D7:47:34:74:7D:5A',
@@ -97,13 +132,67 @@ test('deep-link pages are thin wrappers around one shared fallback component', a
   assert.doesNotMatch(shared, /innerHTML/);
 });
 
-test('GitHub Pages fallback keeps route parameters and hash for both artifacts', async () => {
-  const notFound = await read('src/pages/404.astro');
-  assert.match(notFound, /referralArtifact: url\('\/r\.html'\)/);
-  assert.match(notFound, /tournamentArtifact: url\('\/t\.html'\)/);
-  assert.match(notFound, /URLSearchParams\(location\.search\)/);
-  assert.match(notFound, /location\.hash/);
-  assert.match(notFound, /params\.has\(parameter\)/);
+test('GitHub Pages fallback validates deep links, prefers the path token, and never redirects off-site', async () => {
+  const referralTarget = await githubPagesFallback('/r/Invite_42', '?ref=attacker&campaign=summer', '#join');
+  const referral = new URL(referralTarget, 'https://agoraclan.com');
+  assert.equal(referral.origin, 'https://agoraclan.com');
+  assert.equal(referral.pathname, '/r.html');
+  assert.equal(referral.searchParams.get('ref'), 'Invite_42');
+  assert.equal(referral.searchParams.get('campaign'), 'summer');
+  assert.equal(referral.hash, '#join');
+
+  const tournamentToken = '2d2d135e-9404-4cd0-a540-85a6a56e6428';
+  const tournamentTarget = await githubPagesFallback(`/t/${tournamentToken}`, '?next=https%3A%2F%2Fevil.example');
+  const tournament = new URL(tournamentTarget, 'https://agoraclan.com');
+  assert.equal(tournament.origin, 'https://agoraclan.com');
+  assert.equal(tournament.pathname, '/t.html');
+  assert.equal(tournament.searchParams.get('token'), tournamentToken);
+
+  assert.equal(await githubPagesFallback('/r/%2F%2Fevil.example'), null);
+  assert.equal(await githubPagesFallback('/r/ab'), null);
+  assert.equal(await githubPagesFallback('/t/not%20a%20token'), null);
+  assert.equal(await githubPagesFallback('/t/../../outside'), null);
+});
+
+test('legal documents are published with the current approved contact and retention policy', async () => {
+  const [privacy, deletion, stylesheet] = await Promise.all([
+    read('dist/assets/legal/privacy.html'),
+    read('dist/assets/legal/account-deletion.html'),
+    read('dist/assets/legal/legal.css'),
+  ]);
+
+  assertIncludes(privacy, '<h1>Política de privacidad</h1>');
+  assertIncludes(privacy, 'Actualizada el 7 de octubre de 2026');
+  assertIncludes(privacy, 'Ricardo Ruiz Gracia');
+  assertIncludes(privacy, 'agoragaming99@gmail.com');
+  assertIncludes(privacy, 'hasta 24 meses desde su envío');
+  assertIncludes(privacy, 'Responderemos en un plazo máximo de un mes');
+  assertIncludes(privacy, 'account-deletion.html');
+
+  assertIncludes(deletion, '<h1>Solicitar eliminación de cuenta o datos</h1>');
+  assertIncludes(deletion, 'agoragaming99@gmail.com');
+  assertIncludes(deletion, 'máximo de 30 días');
+  assertIncludes(deletion, 'hasta 90 días en copias de seguridad');
+  assertIncludes(deletion, 'privacy.html');
+  assertIncludes(stylesheet, '#0aff7a');
+});
+
+test('the legacy legal URL resolves only to privacy and keeps query and hash', async () => {
+  const target = new URL(await legacyLegalAlias('?source=preregister', '#solicitudes'));
+  assert.equal(target.origin, 'https://agoraclan.com');
+  assert.equal(target.pathname, '/assets/legal/privacy.html');
+  assert.equal(target.search, '?source=preregister');
+  assert.equal(target.hash, '#solicitudes');
+});
+
+test('preregistration links to the available privacy policy without claiming terms acceptance', async () => {
+  const homepage = await read('dist/index.html');
+  assertIncludes(homepage, 'href="https://agoraclan.com/terminos-y-politicas"');
+  assertIncludes(homepage, 'name="gdpr" required');
+  assertIncludes(homepage, 'Acepto la <a href="https://agoraclan.com/terminos-y-politicas"');
+  assertIncludes(homepage, 'title="Política de privacidad de Ágora"');
+  assertIncludes(homepage, '>política de privacidad</a>, incluido el tratamiento de mis datos para el pre-registro.');
+  assert.ok(!homepage.includes('Acepto los <a'), 'consent should not claim acceptance of unpublished terms');
 });
 
 test('build emits both artifacts and does not expose store links while APP.live is false', async () => {

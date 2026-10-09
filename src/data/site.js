@@ -82,5 +82,5 @@ export const NAV = [
 ];
 
 export const LEGAL = [
-  { label: 'Términos y privacidad', href: 'https://agoraclan.com/terminos-y-politicas', title: 'Términos de uso y política de privacidad de Ágora' },
+  { label: 'Política de privacidad', href: 'https://agoraclan.com/terminos-y-politicas', title: 'Política de privacidad de Ágora' },
 ];

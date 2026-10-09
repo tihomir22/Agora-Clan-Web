@@ -1,0 +1,66 @@
+:root {
+  color-scheme: dark;
+  background: #0b0b12;
+  color: #e8e8f0;
+  font-family: Montserrat, system-ui, sans-serif;
+  line-height: 1.65;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+.page {
+  width: min(100%, 820px);
+  margin: 0 auto;
+  padding: clamp(24px, 6vw, 72px) 24px 80px;
+}
+
+.brand, h1 { color: #0aff7a; }
+
+.brand {
+  font: 700 0.95rem Orbitron, system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+h1 {
+  font: 700 clamp(1.8rem, 5vw, 2.6rem)/1.25 Orbitron, system-ui, sans-serif;
+  margin: 0 0 1rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+  line-height: 1.4;
+  margin: 0 0 0.75rem;
+}
+
+section {
+  border-top: 1px solid #292933;
+  padding: 24px 0 8px;
+}
+
+ul { padding-left: 1.5rem; }
+
+li { margin-bottom: 0.65rem; }
+
+.updated { color: #a3a3b5; font-size: 0.9rem; }
+
+a {
+  color: #0aff7a;
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+
+a:focus-visible {
+  outline: 2px solid #0aff7a;
+  outline-offset: 3px;
+}
+
+.action-link {
+  display: inline-block;
+  padding: 0.7rem 1rem;
+  border: 1px solid #0aff7a;
+  border-radius: 8px;
+  font-weight: 600;
+}

@@ -36,11 +36,23 @@ import ladon from '../assets/mascotas/ladon-lupa.png';
       const match = route.match(/^\/(r|t)\/([^/?#]+)\/?$/);
       if (!match) return;
 
-      const params = new URLSearchParams(location.search);
-      const parameter = match[1] === 'r' ? 'ref' : 'token';
-      if (!params.has(parameter)) params.set(parameter, match[2]);
+      const token = match[2];
+      const referralPattern = /^[A-Za-z0-9_-]{3,16}$/;
+      const uuidPattern = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+      const tokenPattern = /^[A-Za-z0-9_-]{3,64}$/;
+      const isReferral = match[1] === 'r';
+      const valid = isReferral
+        ? referralPattern.test(token)
+        : uuidPattern.test(token) || tokenPattern.test(token);
+      if (!valid) return;
 
-      const destination = match[1] === 'r' ? referralArtifact : tournamentArtifact;
+      const params = new URLSearchParams(location.search);
+      const parameter = isReferral ? 'ref' : 'token';
+      // El segmento que recibió GitHub Pages es la invitación canónica; una
+      // query duplicada no puede sustituirlo ni cambiar el destino fijo.
+      params.set(parameter, token);
+
+      const destination = isReferral ? referralArtifact : tournamentArtifact;
       const query = params.toString();
       location.replace(destination + (query ? '?' + query : '') + location.hash);
     })();

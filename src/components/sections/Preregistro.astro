@@ -139,6 +139,27 @@ const perks = [
             <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="email" role="alert"></p>
           </div>
 
+          <div class="hidden" data-invite-field>
+            <label class="mb-1.5 block font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-invite">
+              Código de invitación (opcional)
+            </label>
+            <input
+              class="u-input"
+              id="pr-invite"
+              name="invite_code"
+              type="text"
+              maxlength="16"
+              autocomplete="off"
+              autocapitalize="characters"
+              spellcheck="false"
+              placeholder="Tu código"
+            />
+            <p class="mt-1 text-[0.68rem] leading-relaxed text-muted" data-invite-help>
+              Si tu correo está admitido para la beta, puedes reservar sin código.
+            </p>
+            <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="invite" role="alert"></p>
+          </div>
+
           <div>
             <label class="mb-1.5 flex items-baseline justify-between gap-3 font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-month">
               Fecha de nacimiento
@@ -207,6 +228,22 @@ const perks = [
 <script is:inline define:vars={{ endpoint: FORM.endpoint, minAge: FORM.minAge }}>
   const form = document.querySelector('[data-prereg]');
   if (form) {
+    const inviteField = form.querySelector('[data-invite-field]');
+    const inviteHelp = form.querySelector('[data-invite-help]');
+    const configEndpoint = endpoint.replace(/\/preregister(?:\?.*)?$/, '/config');
+
+    const showInviteField = () => inviteField?.classList.remove('hidden');
+    fetch(configEndpoint, { cache: 'no-store' })
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error('config_unavailable')))
+      .then((config) => {
+        if (config?.invite_required === true) showInviteField();
+      })
+      .catch(() => {
+        // El código sigue siendo opcional para la whitelist y el backend decide.
+        showInviteField();
+        if (inviteHelp) inviteHelp.textContent = 'La configuración no está disponible ahora. Puedes indicar un código; el servidor comprobará el acceso.';
+      });
+
     const year = form.querySelector('#pr-year');
     const now = new Date().getFullYear();
     for (let y = now - minAge; y >= now - 100; y--) {
@@ -241,11 +278,12 @@ const perks = [
       const data = new FormData(form);
       const username = String(data.get('username') || '').trim();
       const email = String(data.get('email') || '').trim();
+      const inviteCode = String(data.get('invite_code') || '').trim();
       const bm = String(data.get('birth_month') || '');
       const by = String(data.get('birth_year') || '');
       const box = form.querySelector('[data-gdpr-box]');
 
-      ['username', 'email', 'birth'].forEach((k) => err(k, ''));
+      ['username', 'email', 'birth', 'invite'].forEach((k) => err(k, ''));
       box?.classList.remove('!border-danger');
       let ok = true;
 
@@ -276,10 +314,16 @@ const perks = [
       try {
         // Corte a los 12 s: si la API no responde, no dejamos el botón colgado
         const corte = AbortSignal.timeout ? AbortSignal.timeout(12000) : undefined;
+        const payload = {
+          username,
+          email,
+          birth_date: `${by}-${bm}`,
+          ...(inviteCode ? { invite_code: inviteCode } : {}),
+        };
         const res = await fetch(endpoint, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, email, birth_date: `${by}-${bm}` }),
+          body: JSON.stringify(payload),
           signal: corte,
         });
         if (res.ok) {
@@ -291,7 +335,14 @@ const perks = [
         }
         const body = await res.json().catch(() => ({}));
         const msg = body?.error?.message || body?.detail || body?.message;
-        if (res.status === 409) err('username', msg || 'Ese usuario o correo ya está cogido.');
+        const detail = String(msg || '');
+        if (detail.includes('invite_required')) {
+          showInviteField();
+          err('invite', 'La beta está cerrada. Introduce un código de invitación o usa un correo admitido.');
+        } else if (detail.includes('invite_code')) {
+          showInviteField();
+          err('invite', 'El código no existe, ya se usó o ha caducado. Revísalo e inténtalo de nuevo.');
+        } else if (res.status === 409) err('username', msg || 'Ese usuario o correo ya está cogido.');
         else if (res.status === 422 || res.status === 400) err('username', msg || 'Revisa los datos, algo no cuadra.');
         else err('email', msg || `El servidor ha respondido ${res.status}. Inténtalo en un momento.`);
         console.error('[pre-registro] respuesta', res.status, body);

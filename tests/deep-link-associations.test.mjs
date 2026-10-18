@@ -43,6 +43,22 @@ async function legacyLegalAlias(search = '', hash = '') {
   return location.redirect ?? null;
 }
 
+async function privacyAlias(search = '', hash = '') {
+  const html = await read('dist/privacy/index.html');
+  const scripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map((match) => match[1]);
+  const redirect = scripts.find((script) => script.includes("new URL('../assets/legal/privacy.html'"));
+  assert.ok(redirect, 'the /privacy route must redirect to the existing privacy policy');
+
+  const location = {
+    href: 'https://agoraclan.com/privacy/',
+    search,
+    hash,
+    replace: (target) => { location.redirect = target; },
+  };
+  runInNewContext(redirect, { location, URL });
+  return location.redirect ?? null;
+}
+
 const productionFingerprints = [
   'F6:9A:E0:99:47:F9:62:7B:56:21:CD:69:8D:F3:E0:6A:25:C9:E5:9A:6A:38:54:BF:87:1D:D7:47:34:74:7D:5A',
   'A0:EC:14:8C:D8:A8:EF:4A:B4:CC:C8:5C:65:BD:DA:AF:A1:E0:B6:53:A7:88:F9:FE:F9:0C:2B:B9:92:9E:DB:4C',
@@ -185,11 +201,19 @@ test('the legacy legal URL resolves only to privacy and keeps query and hash', a
   assert.equal(target.hash, '#solicitudes');
 });
 
+test('the canonical /privacy route resolves to the current policy and keeps query and hash', async () => {
+  const target = new URL(await privacyAlias('?source=preregister', '#conservacion'));
+  assert.equal(target.origin, 'https://agoraclan.com');
+  assert.equal(target.pathname, '/assets/legal/privacy.html');
+  assert.equal(target.search, '?source=preregister');
+  assert.equal(target.hash, '#conservacion');
+});
+
 test('preregistration links to the available privacy policy without claiming terms acceptance', async () => {
   const homepage = await read('dist/index.html');
-  assertIncludes(homepage, 'href="https://agoraclan.com/terminos-y-politicas"');
+  assertIncludes(homepage, 'href="https://agoraclan.com/privacy"');
   assertIncludes(homepage, 'name="gdpr" required');
-  assertIncludes(homepage, 'Acepto la <a href="https://agoraclan.com/terminos-y-politicas"');
+  assertIncludes(homepage, 'Acepto la <a href="https://agoraclan.com/privacy"');
   assertIncludes(homepage, 'title="Política de privacidad de Ágora"');
   assertIncludes(homepage, '>política de privacidad</a>, incluido el tratamiento de mis datos para el pre-registro.');
   assert.ok(!homepage.includes('Acepto los <a'), 'consent should not claim acceptance of unpublished terms');

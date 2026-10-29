@@ -14,15 +14,19 @@ La comprobación MIME de AASA y el QA de enlaces instalados queda en el bloque f
 
 Solo con los legales públicos y comprobados, actualizar soporte/privacidad de ambas tiendas a https://agoraclan.com/soporte y https://agoraclan.com/privacy (el documento canónico final puede ser /assets/legal/privacy.html; los alias deben funcionar). No introducir URLs aún404 en fichas. Mantener marketing https://agoraclan.com .
 
+Apple conserva por ahora las URLs antiguas de Netlify, que no sirven como aceptación de los legales. Si el estado de revisión bloquea su edición, retirar solo la versión de app del borrador existente, corregir las URLs verificadas y volver a añadirla al mismo borrador; comprobar de nuevo los nueve elementos antes del envío. No crear otro envío ni enviar para desbloquear una edición.
+
 ## Revisión pública después del iPhone
 
-Candidatos actuales sin recompilar por cambio de contrato aditivo: Android1.0.38(39), alpha activo y producción en borrador; iOS1.0.5(20), TestFlight interno, versión App Store en PREPARE_FOR_SUBMISSION; IPA QA1.0.5(9047), staging/Sandbox para iPhone. Verificar los IDs y los commits antes del envío final. No convertir un artefacto CI en afirmación de disponibilidad.
+Candidatos actuales sin recompilar por cambio de contrato aditivo: Android1.0.38(39), alpha activo y producción en borrador; iOS1.0.5(20), TestFlight interno, versión App Store en READY_FOR_REVIEW sin envío; IPA QA1.0.5(9047), staging/Sandbox para iPhone. Verificar los IDs y los commits antes del envío final. No convertir un artefacto CI en afirmación de disponibilidad.
 
 Completar primero QA físico Apple: instalar IPA, Google/Apple login, compra Sandbox de pack/Rise, restauración, notificaciones/deep links y casos de gesto pendientes. El error nativo Apple6003 sigue abierto hasta probar corrección física. Verificar otra vez catálogo, mapeo RevenueCat y cuenta de App Review aislada, sin datos ni compras reales de producción.
 
-Revalidar que el acuerdo pagado Apple sigue activo. Mantener releaseType=MANUAL. Añadir en el MISMO borrador de review la versión1.0.5/build20, cinco consumibles AR, Rise mensual/anual y grupo Agora Rise22236907. Revisar metadatos/localizaciones/imágenes completas y URLs legales. No enviar solo los primeros IAP sin versión de app: Apple requiere la primera compra de cada tipo con versión nueva. El borrador debe permanecer sin submitted=true hasta QA final.
+Revalidar que el acuerdo pagado Apple sigue activo. Mantener releaseType=MANUAL. El borrador existente830504d9-9600-421f-afaf-07c9b15fc37e ya contiene los nueve elementos: versión1.0.5/build20, cinco consumibles AR, Rise mensual/anual y grupo Agora Rise22236907; todos READY_FOR_REVIEW y submittedDate vacío, comprobado por API el29oct2026. Se completaron las preguntas nuevas de redes sociales preservando las respuestas anteriores y el precio gratuito de la app en175territorios; esto no modifica precios de compras. Revisar metadatos/localizaciones/imágenes completas y URLs legales. No enviar solo los primeros IAP sin versión de app: Apple requiere la primera compra de cada tipo con versión nueva. El borrador debe permanecer sin submitted=true hasta QA final.
 
 Google Play: conservar Managed publishing on. Producción39 seguirá borrador hasta enviar la revisión final después del iPhone. Comprobar Data safety, ficha, política de privacidad/eliminación, acceso para reviewer, disponibilidad y precios. La ampliación IAP es independiente de la publicación gestionada: sus cambios regionales pueden aplicarse antes y no equivalen a abrir el registro.
+
+La ampliación ya está aplicada y comprobada: cinco packs y Rise mensual/anual ACTIVE en174regiones cada uno, preservando exactamente las configuraciones previas de ES/ET/MN y el resto de términos. No repetir la operación para preparar la publicación de la app.
 
 ## Corte de fundadores y apertura
 

@@ -1,6 +1,6 @@
 ---
 import { url } from '../lib/url.js';
-import { NAV, APP, SOCIAL } from '../data/site.js';
+import { NAV, SOCIAL } from '../data/site.js';
 import Logo from './ui/Logo.astro';
 import Icon from './ui/Icon.astro';
 import BrandMark from './ui/BrandMark.astro';
@@ -57,10 +57,10 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       <div class="flex items-center gap-2">
         <a
           href={url('/descargar')}
-          title="Descargar Ágora: pronto en iOS y Android"
+          title="Cómo descargar y entrar en Ágora"
           class="u-btn u-btn--primary hidden sm:inline-flex !px-4 !py-2.5 !text-[0.68rem]"
         >
-          {APP.live ? 'Descargar' : 'Entrar antes'}
+          <span data-app-cta>Ver disponibilidad</span>
         </a>
 
         <button
@@ -167,8 +167,8 @@ const isActive = (href: string) => (href === '/' ? path === '/' : path.startsWit
       </ul>
 
       <div class="mt-6" data-menu-item style={`--i:${NAV.length}`}>
-        <a href={url('/descargar#pre-registro')} class="u-btn u-btn--primary w-full" title="Reserva tu plaza en el pre-registro de Ágora">
-          Reservar mi plaza
+        <a href={url('/descargar')} class="u-btn u-btn--primary w-full" title="Cómo descargar y entrar en Ágora">
+          <span data-app-cta>Ver disponibilidad</span>
           <Icon name="arrow" class="h-4 w-4" />
         </a>
       </div>

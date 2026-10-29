@@ -42,7 +42,7 @@ export const appSchema = () => ({
   inLanguage: ['es-ES', 'en'],
   description: SITE.description,
   url: SITE.url,
-  ...(APP.android ? { installUrl: APP.android } : {}),
+  ...(APP.live && APP.android ? { installUrl: APP.android } : {}),
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'EUR' },
   image: abs('/img/og/default.png'),
   screenshot: abs('/img/og/default.png'),

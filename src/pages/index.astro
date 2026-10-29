@@ -60,7 +60,7 @@ const ciclo = [
 
 <Base
   title="Ágora — Encuentra jugadores y organiza torneos"
-  description="La app gamer para encontrar jugadores, jugar y organizar torneos con brackets, crear tu clan y subir de nivel con un perfil propio. Pronto en iOS y Android."
+  description="La app gamer para encontrar jugadores, jugar y organizar torneos con brackets, crear tu clan y subir de nivel con un perfil propio. Para iOS y Android."
   rawTitle
   schema={[appSchema()]}
 >
@@ -74,7 +74,7 @@ const ciclo = [
 
     <div class="u-shell relative grid gap-10 pb-[var(--spacing-section)] pt-12 sm:pt-16 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:gap-10 lg:pt-20">
       <div>
-        <p class="u-eyebrow" data-reveal>Próximamente · iOS y Android</p>
+        <p class="u-eyebrow" data-reveal>iOS y Android</p>
 
         <h1 class="mt-6 text-hero font-black uppercase">
           Encuentra jugadores <br />y organiza <br />
@@ -94,9 +94,9 @@ const ciclo = [
 
         <div class="mt-7 flex flex-wrap items-center gap-2.5 sm:mt-8 sm:gap-3" data-reveal data-reveal-delay="0.18">
           <a
-            href="#pre-registro"
+            href={url('/descargar')}
             class="u-btn u-btn--primary max-w-full"
-            title="Únete a Ágora y reserva tu plaza en el pre-registro"
+            title="Cómo entrar en Ágora"
           >
             Únete y empieza a competir
             <Icon name="arrow" class="hidden h-4 w-4 sm:block" />

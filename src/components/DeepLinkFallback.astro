@@ -1,6 +1,5 @@
 ---
 import { Image } from 'astro:assets';
-import { APP } from '../data/site.js';
 import { url } from '../lib/url.js';
 import Icon from './ui/Icon.astro';
 import styxxEstandarte from '../assets/mascotas/styxx-estandarte.png';
@@ -49,26 +48,34 @@ const defaultDestination = isReferral
           Descargar Ágora
           <Icon name="download" class="h-4 w-4" />
         </a>
-        {
-          APP.live && APP.android ? (
-            <a
-              href={APP.android}
-              target="_blank"
-              rel="noopener"
-              data-store-link
-              class="u-btn u-btn--ghost"
-              title="Descargar Ágora en Google Play"
-            >
-              Google Play
-            </a>
-          ) : null
-        }
+        <a
+          data-store-link="ios"
+          hidden
+          target="_blank"
+          rel="noopener"
+          class="u-btn u-btn--ghost"
+          title="Descargar Ágora en App Store"
+        >
+          App Store
+        </a>
+        <a
+          data-store-link="android"
+          hidden
+          target="_blank"
+          rel="noopener"
+          class="u-btn u-btn--ghost"
+          title="Descargar Ágora en Google Play"
+        >
+          Google Play
+        </a>
       </div>
 
       <p class="mt-5 min-h-6 font-mono text-[0.66rem] uppercase tracking-[0.16em] text-muted" data-value aria-live="polite">
       </p>
       <p class="mt-3 max-w-lg text-[0.78rem] leading-relaxed text-muted/80">
-        Si la app todavía no está disponible en tu dispositivo, puedes conocer el flujo de descarga y reservar tu plaza.
+        <span data-phase="live" hidden>Ya disponible en App Store y Google Play.</span>
+        <span data-phase="upcoming" hidden>La descarga todavía no está abierta; consulta la página de descarga para ver el estado.</span>
+        <span data-phase="unknown">Comprobando la disponibilidad de la app…</span>
       </p>
     </div>
 

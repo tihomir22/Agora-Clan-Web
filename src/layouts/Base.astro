@@ -3,6 +3,7 @@ import BaseHead from '../components/seo/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE } from '../data/site.js';
+import { url } from '../lib/url.js';
 import '../styles/global.css';
 
 interface Props {
@@ -27,6 +28,9 @@ const { title, description, rawTitle, image, noindex, schema } = Astro.props;
       noindex={noindex}
       schema={schema}
     />
+    <!-- Fases públicas: script clásico para que los inline de las secciones
+         puedan consultarlo sin depender del bundle. -->
+    <script is:inline src={url('/assets/public-phase.js')}></script>
   </head>
   <body>
     <a
@@ -45,6 +49,26 @@ const { title, description, rawTitle, image, noindex, schema } = Astro.props;
       setTimeout(() => {
         if (!window.__motionListo) document.documentElement.classList.add('sin-motion');
       }, 1400);
+    </script>
+    <script>
+      import { APP, CONFIG_ENDPOINT } from '../data/site.js';
+
+      // Una sola lectura de /api/v1/config por página. Aplica la fase a todo
+      // el documento (CTAs, tiendas, bloques de sección) y avisa a las
+      // secciones que necesitan algo más que mostrar/ocultar (p. ej. invitar).
+      const runtime = (window as Window & {
+        AgoraPhase?: {
+          configure: (options: { storeLinks: { ios: string; android: string } }) => unknown;
+          init: (root: Document, url: string) => Promise<unknown>;
+        };
+      }).AgoraPhase;
+      if (runtime) {
+        // Las URLs viven solo en site.js; el runtime solo las publica en `live`.
+        runtime.configure({ storeLinks: { ios: APP.ios, android: APP.android } });
+        runtime.init(document, CONFIG_ENDPOINT).then((state) => {
+          window.dispatchEvent(new CustomEvent('agora:phase', { detail: state }));
+        });
+      }
     </script>
     <script>
       // GSAP, Lenis y Atropos pesan; se cargan cuando el navegador está libre

@@ -1,0 +1,65 @@
+---
+import Base from '../layouts/Base.astro';
+import Section from '../components/ui/Section.astro';
+import Icon from '../components/ui/Icon.astro';
+import { url } from '../lib/url.js';
+import { breadcrumbSchema } from '../lib/schema.js';
+
+const contacto = 'agoragaming99@gmail.com';
+---
+
+<Base
+  title="Soporte de Ágora — ayuda, cuenta y datos"
+  description="Contacta con el equipo de Ágora para resolver dudas de cuenta, acceso o datos, y consulta cómo solicitar la eliminación de tu cuenta."
+  schema={[
+    breadcrumbSchema([
+      { label: 'Inicio', href: '/' },
+      { label: 'Soporte', href: '/soporte' },
+    ]),
+  ]}
+>
+  <Section eyebrow="Soporte" title="Estamos para ayudarte">
+    <div class="mt-10 grid gap-4 lg:grid-cols-2">
+      <article class="u-card p-6 sm:p-8">
+        <h2 class="font-display text-[1rem] font-black uppercase tracking-wide">Escríbenos</h2>
+        <p class="mt-3 text-[0.92rem] leading-relaxed text-muted">
+          Para dudas sobre tu cuenta, el acceso, el pre-registro o cualquier problema con la app,
+          escribe al equipo indicando tu nombre de usuario y el correo asociado a la cuenta.
+        </p>
+        <a
+          href={`mailto:${contacto}?subject=Agora%20Clan%20-%20soporte`}
+          class="u-btn u-btn--primary mt-6"
+          title="Escribir al soporte de Ágora"
+        >
+          {contacto}
+        </a>
+        <p class="mt-4 text-[0.8rem] leading-relaxed text-muted">
+          No envíes contraseñas ni documentación personal. Responderemos en un plazo máximo de un
+          mes desde la recepción.
+        </p>
+      </article>
+
+      <article class="u-card p-6 sm:p-8">
+        <h2 class="font-display text-[1rem] font-black uppercase tracking-wide">Cuenta y datos</h2>
+        <p class="mt-3 text-[0.92rem] leading-relaxed text-muted">
+          Puedes pedir la eliminación de tu cuenta y sus datos asociados, o la eliminación de datos
+          concretos conservando la cuenta, desde la página de eliminación.
+        </p>
+        <a
+          href={url('/assets/legal/account-deletion.html')}
+          class="u-btn u-btn--ghost mt-6"
+          title="Cómo solicitar la eliminación de cuenta o datos"
+        >
+          Eliminar cuenta o datos
+          <Icon name="arrow" class="h-4 w-4" />
+        </a>
+        <p class="mt-4 text-[0.8rem] leading-relaxed text-muted">
+          Consulta también la
+          <a href={url('/privacy')} class="text-neon underline underline-offset-2" title="Política de privacidad de Ágora">política de privacidad</a>
+          y las
+          <a href={url('/faq')} class="text-neon underline underline-offset-2" title="Preguntas frecuentes de Ágora">preguntas frecuentes</a>.
+        </p>
+      </article>
+    </div>
+  </Section>
+</Base>

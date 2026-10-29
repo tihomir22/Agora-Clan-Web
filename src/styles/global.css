@@ -81,6 +81,11 @@
     color: var(--color-ink);
   }
 
+  /* `hidden` debe ganar a las utilidades de display (grid/flex). */
+  [hidden] {
+    display: none !important;
+  }
+
   :focus-visible {
     outline: 2px solid var(--color-neon);
     outline-offset: 3px;

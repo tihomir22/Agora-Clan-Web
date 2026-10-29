@@ -9,8 +9,9 @@
     "preview": "astro preview",
     "check": "astro check",
     "postbuild": "node scripts/postbuild.mjs",
+    "test": "node --test tests/*.test.mjs",
     "test:deep-links": "node --test tests/deep-link-associations.test.mjs",
-    "verify": "npm run check && npm run build && npm run test:deep-links"
+    "verify": "npm run check && npm run build && npm run test"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.3",

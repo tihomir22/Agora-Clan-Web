@@ -7,23 +7,23 @@ import Tilt from '../components/ui/Tilt.astro';
 import Preregistro from '../components/sections/Preregistro.astro';
 import Icon from '../components/ui/Icon.astro';
 import BrandMark from '../components/ui/BrandMark.astro';
-import { APP, SOCIAL } from '../data/site.js';
+import { SOCIAL } from '../data/site.js';
 import { appSchema, breadcrumbSchema, faqSchema } from '../lib/schema.js';
 
 import bienvenida from '../assets/app/agora-app-bienvenida.png';
 import styxxEstandarte from '../assets/mascotas/styxx-estandarte.png';
 
 const pasos = [
-  { n: '01', t: 'Reserva tu plaza', d: 'Nombre de usuario, correo y edad. Diez segundos y listo.' },
-  { n: '02', t: 'Confirma el correo', d: 'Te llega un enlace para activar la reserva.' },
-  { n: '03', t: 'Descarga el día del lanzamiento', d: 'Te avisamos en cuanto esté en las tiendas.' },
-  { n: '04', t: 'Reclama tus recompensas', d: 'Entras con el marco Pionero y 7 días de Rise, con su insignia y su marco.' },
+  { n: '01', t: 'Descarga la app', d: 'Cuando esté publicada, desde App Store o Google Play.' },
+  { n: '02', t: 'Crea tu cuenta', d: 'Usuario, correo y edad. Un minuto y listo.' },
+  { n: '03', t: 'Completa tu perfil', d: 'Elige avatar, marco y los juegos que juegas.' },
+  { n: '04', t: 'Entra a competir', d: 'Torneos, retas con amigos y clanes desde el móvil.' },
 ];
 
 const faqs = [
   {
     q: '¿Cuándo estará disponible Ágora?',
-    a: 'Ágora llega próximamente a App Store y Google Play, con lanzamiento simultáneo en España. Reservando tu plaza en el pre-registro te avisamos el mismo día.',
+    a: 'Ágora estará disponible para iOS en App Store y para Android en Google Play, con foco inicial en España. En esta misma página verás el estado actualizado de cada tienda y, cuando la app esté publicada, el enlace de descarga.',
   },
   {
     q: '¿Cuánto cuesta?',
@@ -37,8 +37,8 @@ const faqs = [
 ---
 
 <Base
-  title="Descargar Ágora — pronto en iOS y Android"
-  description="Ágora llega próximamente a App Store y Google Play. Reserva tu plaza gratis y entra el día del lanzamiento para jugar y organizar torneos desde el móvil."
+  title="Descargar Ágora — iOS y Android"
+  description="Ágora se publica en App Store y Google Play. Consulta el estado del pre-registro y de la descarga, y cómo entrar a jugar y organizar torneos desde el móvil."
   schema={[
     appSchema(),
     breadcrumbSchema([
@@ -50,33 +50,78 @@ const faqs = [
 >
   <section class="u-shell grid gap-14 pt-16 lg:grid-cols-[1.1fr_1fr] lg:items-center lg:pt-24">
     <div>
-      <div
-        class="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3.5 py-1.5"
-        data-reveal
-      >
-        <Icon name="clock" class="h-3.5 w-3.5 text-gold" />
-        <span class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-gold">Próximamente</span>
+      <!-- El estado se resuelve en runtime con /api/v1/config. Sin datos no
+           se afirma ni apertura del pre-registro ni disponibilidad. -->
+      <div data-phase="live" hidden>
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-neon/30 bg-neon/10 px-3.5 py-1.5"
+          data-reveal
+        >
+          <Icon name="check" class="h-3.5 w-3.5 text-neon" />
+          <span class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-neon">Ya disponible</span>
+        </div>
+      </div>
+      <div data-phase="preregister" hidden>
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-neon/30 bg-neon/10 px-3.5 py-1.5"
+          data-reveal
+        >
+          <Icon name="clock" class="h-3.5 w-3.5 text-neon" />
+          <span class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-neon">Pre-registro abierto</span>
+        </div>
+      </div>
+      <div data-phase="upcoming" hidden>
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3.5 py-1.5"
+          data-reveal
+        >
+          <Icon name="clock" class="h-3.5 w-3.5 text-gold" />
+          <span class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-gold">Próximamente</span>
+        </div>
+      </div>
+      <div data-phase="unknown">
+        <div
+          class="inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3.5 py-1.5"
+          data-reveal
+        >
+          <Icon name="clock" class="h-3.5 w-3.5 text-muted" />
+          <span class="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-muted">Estado de la app</span>
+        </div>
       </div>
 
       <h1 class="mt-6 text-hero font-black uppercase">
         Descarga<br /><span class="text-neon">Ágora</span>
       </h1>
-      <p class="mt-5 max-w-lg text-[0.95rem] leading-relaxed text-muted sm:mt-6 sm:text-[1.05rem]" data-reveal data-reveal-delay="0.1">
-        La app llega a iOS y Android de forma simultánea. Todavía no está publicada en las tiendas,
-        así que la puerta de entrada es el pre-registro.
+      <p class="mt-5 max-w-lg text-[0.95rem] leading-relaxed text-muted sm:mt-6 sm:text-[1.05rem]" data-reveal data-reveal-delay="0.1" data-phase="live" hidden>
+        Ágora ya está en App Store y Google Play. Descárgala y entra a competir.
+      </p>
+      <p class="mt-5 max-w-lg text-[0.95rem] leading-relaxed text-muted sm:mt-6 sm:text-[1.05rem]" data-reveal data-reveal-delay="0.1" data-phase="preregister" hidden>
+        La app todavía no está publicada en las tiendas, pero el pre-registro con recompensas de
+        fundador sigue abierto: reserva tu plaza y te avisamos el día del lanzamiento.
+      </p>
+      <p class="mt-5 max-w-lg text-[0.95rem] leading-relaxed text-muted sm:mt-6 sm:text-[1.05rem]" data-reveal data-reveal-delay="0.1" data-phase="upcoming" hidden>
+        La app estará disponible para iOS en App Store y para Android en Google Play. El pre-registro con recompensas de
+        fundador ha cerrado; aquí publicaremos el enlace de descarga de cada tienda en cuanto esté disponible.
+      </p>
+      <p class="mt-5 max-w-lg text-[0.95rem] leading-relaxed text-muted sm:mt-6 sm:text-[1.05rem]" data-reveal data-reveal-delay="0.1" data-phase="unknown" data-phase-status>
+        Comprobando el estado del pre-registro y de las tiendas…
       </p>
 
       <!-- Botones de tienda -->
       <div class="mt-8 flex flex-wrap gap-3" data-reveal data-reveal-delay="0.15">
         {
           [
-            { store: 'App Store', mark: 'appstore', sub: 'iOS', href: APP.ios },
-            { store: 'Google Play', mark: 'googleplay', sub: 'Android', href: APP.android },
-          ].map((s) =>
-            APP.live && s.href ? (
+            { key: 'ios', store: 'App Store', mark: 'appstore', sub: 'iOS' },
+            { key: 'android', store: 'Google Play', mark: 'googleplay', sub: 'Android' },
+          ].map((s) => (
+            <div>
               <a
-                href={s.href}
+                data-store-link={s.key}
+                hidden
+                target="_blank"
+                rel="noopener"
                 class="group inline-flex items-center gap-3 rounded-lg border border-neon bg-neon px-5 py-3.5 text-ink transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_32px_-6px_rgb(10_255_122/0.7)]"
+                title={`Descargar Ágora en ${s.store}`}
               >
                 <BrandMark mark={s.mark} class="h-7 w-7" title={s.store} />
                 <span class="text-left">
@@ -88,8 +133,9 @@ const faqs = [
                   </span>
                 </span>
               </a>
-            ) : (
               <span
+                data-store-pending
+                hidden
                 class="group inline-flex cursor-default items-center gap-3 rounded-lg border border-line bg-surface/40 px-5 py-3.5 transition-colors duration-500 hover:border-gold/45"
                 aria-disabled="true"
               >
@@ -107,13 +153,13 @@ const faqs = [
                   </span>
                 </span>
               </span>
-            ),
-          )
+            </div>
+          ))
         }
       </div>
 
-      <a href="#pre-registro" title="Reserva tu plaza en el pre-registro de Ágora" class="u-btn u-btn--primary mt-6 hidden sm:inline-flex" data-reveal>
-        Avísame el día del lanzamiento
+      <a href="#pre-registro" data-phase="preregister" hidden title="Reserva tu plaza en el pre-registro de Ágora" class="u-btn u-btn--primary mt-6 hidden sm:inline-flex" data-reveal>
+        Reserva tu plaza
         <Icon name="arrow" class="h-4 w-4" />
       </a>
     </div>
@@ -146,7 +192,7 @@ const faqs = [
   <Preregistro id="pre-registro" compact />
 
   <!-- PASOS -->
-  <Section eyebrow="Cómo funciona" title="De aquí al día del lanzamiento">
+  <Section eyebrow="Cómo funciona" title="De aquí a la arena">
     <div class="mt-10 grid gap-3 sm:mt-12 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4" data-reveal-group>
       {
         pasos.map((p) => (

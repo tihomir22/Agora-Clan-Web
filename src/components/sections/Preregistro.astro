@@ -1,7 +1,9 @@
 ---
 import { Image } from 'astro:assets';
 import { FORM } from '../../data/site.js';
+import { url } from '../../lib/url.js';
 import Icon from '../ui/Icon.astro';
+import BrandMark from '../ui/BrandMark.astro';
 import marcoPionero from '../../assets/marcos/marco-pionero.png';
 import badgeRise from '../../assets/marcos/badge-rise.png';
 import cofreOro from '../../assets/cofres/cofre-oro.png';
@@ -14,6 +16,11 @@ const perks = [
   { img: marcoPionero, name: 'Marco Pionero', sub: 'Solo para los primeros', alt: 'Marco de avatar Pionero' },
   { img: badgeRise, name: '7 días de Rise', sub: 'Con insignia y marco exclusivos', alt: 'Insignia de Ágora Rise' },
   { img: cofreOro, name: 'Pack Fundador', sub: 'Cofres, AR y cosméticos', alt: 'Cofre de oro de Ágora' },
+];
+
+const stores = [
+  { key: 'ios', store: 'App Store', mark: 'appstore', sub: 'iOS' },
+  { key: 'android', store: 'Google Play', mark: 'googleplay', sub: 'Android' },
 ];
 ---
 
@@ -32,193 +39,345 @@ const perks = [
     <div class="relative grid gap-8 p-6 sm:p-9 lg:grid-cols-[1.05fr_1fr] lg:gap-12 lg:p-12">
       <!-- Argumento -->
       <div>
-        <div
-          class="inline-flex items-center gap-2 rounded-full border border-neon/30 bg-neon/10 px-3.5 py-1.5"
-        >
-          <span class="relative flex h-2 w-2">
-            <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon opacity-70"></span>
-            <span class="relative inline-flex h-2 w-2 rounded-full bg-neon"></span>
-          </span>
-          <span class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-neon"
-            >Pre-registro abierto</span
+        <!-- Pre-registro: solo con `preregistration_open === true` explícito. -->
+        <div data-phase="preregister" hidden>
+          <div
+            class="inline-flex items-center gap-2 rounded-full border border-neon/30 bg-neon/10 px-3.5 py-1.5"
           >
+            <span class="relative flex h-2 w-2">
+              <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-neon opacity-70"></span>
+              <span class="relative inline-flex h-2 w-2 rounded-full bg-neon"></span>
+            </span>
+            <span class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-neon"
+              >Pre-registro abierto</span
+            >
+          </div>
+
+          <h2 class="mt-6 text-display">
+            Entra antes <br /><span class="text-neon">de que abra la arena</span>
+          </h2>
+          <p class="mt-4 max-w-md text-muted">
+            Reserva tu plaza en menos de diez segundos y entra el día del lanzamiento con tus
+            recompensas de fundador y 7 días de Ágora Rise, sin tarjeta y sin suscripción.
+          </p>
+
+          <ul class="mt-7 grid grid-cols-3 gap-2 sm:gap-3" data-reveal-group>
+            {
+              perks.map((p) => (
+                <li class="u-card flex flex-col items-center gap-2 p-3 text-center sm:flex-row sm:gap-3 sm:p-3.5 sm:text-left" data-reveal-item>
+                  <Image src={p.img} alt={p.alt} width={72} densities={[1, 2]} class="h-9 w-9 shrink-0 object-contain sm:h-11 sm:w-11" />
+                  <div class="min-w-0">
+                    <p class="font-display text-[0.62rem] font-bold uppercase leading-tight tracking-wide sm:text-[0.7rem]">
+                      {p.name}
+                    </p>
+                    <p class="mt-0.5 text-[0.62rem] leading-snug text-muted sm:text-[0.7rem]">{p.sub}</p>
+                  </div>
+                </li>
+              ))
+            }
+          </ul>
+
+          {
+            !compact && (
+              <div class="mt-10 hidden items-end gap-5 lg:flex">
+                <Image
+                  src={styxx}
+                  alt="Styxx, mascota de Ágora, sosteniendo el estandarte"
+                  width={230}
+                  densities={[1, 2]}
+                  class="w-[190px] drop-shadow-[0_18px_36px_rgb(0_0_0/0.6)]"
+                />
+                <p class="mb-6 max-w-[15rem] border-l border-neon/40 pl-4 text-sm italic text-muted">
+                  «Los primeros que entren se llevan un marco que ya no volverá a repartirse.»
+                </p>
+              </div>
+            )
+          }
         </div>
 
-        <h2 class="mt-6 text-display">
-          Entra antes <br /><span class="text-neon">de que abra la arena</span>
-        </h2>
-        <p class="mt-4 max-w-md text-muted">
-          Reserva tu plaza en menos de diez segundos y entra el día del lanzamiento con tus
-          recompensas de fundador y 7 días de Ágora Rise, sin tarjeta y sin suscripción.
-        </p>
+        <!-- Ya disponible: solo con signup abierto y sin invitación. -->
+        <div data-phase="live" hidden>
+          <div
+            class="inline-flex items-center gap-2 rounded-full border border-neon/30 bg-neon/10 px-3.5 py-1.5"
+          >
+            <Icon name="check" class="h-3.5 w-3.5 text-neon" />
+            <span class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-neon"
+              >Ya disponible</span
+            >
+          </div>
+          <h2 class="mt-6 text-display">
+            La arena <br /><span class="text-neon">ya está abierta</span>
+          </h2>
+          <p class="mt-4 max-w-md text-muted">
+            Ágora ya está publicada en App Store y Google Play. Descárgala, entra con tu cuenta y
+            empieza a competir hoy.
+          </p>
+          <div class="mt-7 flex flex-wrap gap-2.5">
+            {
+              stores.map((s) => (
+                <a
+                  data-store-link={s.key}
+                  class="u-btn u-btn--ghost"
+                  title={`Descargar Ágora en ${s.store}`}
+                >
+                  <BrandMark mark={s.mark} class="h-4 w-4" />
+                  {s.store}
+                  <span class="font-mono text-[0.56rem] uppercase tracking-[0.12em] text-muted">{s.sub}</span>
+                </a>
+              ))
+            }
+          </div>
+        </div>
 
-        <ul class="mt-7 grid grid-cols-3 gap-2 sm:gap-3" data-reveal-group>
-          {
-            perks.map((p) => (
-              <li class="u-card flex flex-col items-center gap-2 p-3 text-center sm:flex-row sm:gap-3 sm:p-3.5 sm:text-left" data-reveal-item>
-                <Image src={p.img} alt={p.alt} width={72} densities={[1, 2]} class="h-9 w-9 shrink-0 object-contain sm:h-11 sm:w-11" />
-                <div class="min-w-0">
-                  <p class="font-display text-[0.62rem] font-bold uppercase leading-tight tracking-wide sm:text-[0.7rem]">
-                    {p.name}
-                  </p>
-                  <p class="mt-0.5 text-[0.62rem] leading-snug text-muted sm:text-[0.7rem]">{p.sub}</p>
-                </div>
-              </li>
-            ))
-          }
-        </ul>
+        <!-- Próximamente: config cargada y acceso todavía cerrado. -->
+        <div data-phase="upcoming" hidden>
+          <div
+            class="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3.5 py-1.5"
+          >
+            <Icon name="clock" class="h-3.5 w-3.5 text-gold" />
+            <span class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-gold"
+              >Próximamente</span
+            >
+          </div>
+          <h2 class="mt-6 text-display">
+            La arena abre <br /><span class="text-neon">muy pronto</span>
+          </h2>
+          <p class="mt-4 max-w-md text-muted">
+            El pre-registro con recompensas de fundador ya no está disponible. La app llegará a
+            App Store y Google Play; aquí publicaremos el enlace en cuanto esté disponible.
+          </p>
+          <p class="mt-4 max-w-md rounded-lg border border-gold/35 bg-gold/[0.08] p-3 text-[0.86rem] leading-relaxed text-bone" data-prereg-closed hidden>
+            El pre-registro ha cerrado mientras enviabas el formulario, así que no se ha creado
+            ninguna cuenta. No se ha aplicado ninguna reserva ni recompensa.
+          </p>
+          <div class="mt-7 flex flex-wrap gap-2.5">
+            <a href={url('/descargar')} class="u-btn u-btn--ghost" title="Estado de la descarga de Ágora">
+              Ver estado de la descarga
+              <Icon name="download" class="h-4 w-4" />
+            </a>
+            <a href={url('/soporte')} class="u-btn u-btn--ghost" title="Soporte de Ágora">
+              Hablar con soporte
+            </a>
+          </div>
+        </div>
 
-
-
-        {
-          !compact && (
-            <div class="mt-10 hidden items-end gap-5 lg:flex">
-              <Image
-                src={styxx}
-                alt="Styxx, mascota de Ágora, sosteniendo el estandarte"
-                width={230}
-                densities={[1, 2]}
-                class="w-[190px] drop-shadow-[0_18px_36px_rgb(0_0_0/0.6)]"
-              />
-              <p class="mb-6 max-w-[15rem] border-l border-neon/40 pl-4 text-sm italic text-muted">
-                «Los primeros que entren se llevan un marco que ya no volverá a repartirse.»
-              </p>
-            </div>
-          )
-        }
+        <!-- Sin datos todavía: no se afirma apertura ni disponibilidad. -->
+        <div data-phase="unknown">
+          <div
+            class="inline-flex items-center gap-2 rounded-full border border-line bg-surface/60 px-3.5 py-1.5"
+          >
+            <Icon name="clock" class="h-3.5 w-3.5 text-muted" />
+            <span class="font-mono text-[0.64rem] uppercase tracking-[0.2em] text-muted"
+              >Estado de la arena</span
+            >
+          </div>
+          <h2 class="mt-6 text-display">
+            Ágora, <br /><span class="text-neon">en camino</span>
+          </h2>
+          <p class="mt-4 max-w-md text-muted" data-phase-status>
+            Comprobando si el pre-registro o la descarga ya están disponibles…
+          </p>
+          <div class="mt-7 flex flex-wrap gap-2.5">
+            <a href={url('/descargar')} class="u-btn u-btn--ghost" title="Estado de la descarga de Ágora">
+              Ver estado de la descarga
+              <Icon name="download" class="h-4 w-4" />
+            </a>
+            <a href={url('/soporte')} class="u-btn u-btn--ghost" title="Soporte de Ágora">
+              Hablar con soporte
+            </a>
+          </div>
+        </div>
       </div>
 
-      <!-- Formulario -->
-      <div class="u-card !bg-surface/85 p-5 sm:p-7">
-        <div class="flex items-baseline justify-between gap-4">
-          <h3 class="font-display text-lg font-black uppercase tracking-wide">Reserva tu plaza</h3>
-          <p class="text-right">
-            <span
-              class="block font-display text-lg font-black text-neon"
-              data-count-to={FORM.slots}>0</span
+      <!-- Formulario / estado -->
+      <div>
+        <!-- Pre-registro -->
+        <div class="u-card !bg-surface/85 p-5 sm:p-7" data-phase="preregister" hidden>
+          <div class="flex items-baseline justify-between gap-4">
+            <h3 class="font-display text-lg font-black uppercase tracking-wide">Reserva tu plaza</h3>
+            <p class="text-right">
+              <span
+                class="block font-display text-lg font-black text-neon"
+                data-count-to={FORM.slots}>0</span
+              >
+              <span class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted"
+                >plazas</span
+              >
+            </p>
+          </div>
+
+          <form class="mt-5 space-y-3.5" data-prereg novalidate>
+            <div>
+              <label class="mb-1.5 block font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-user">
+                Nombre de usuario
+              </label>
+              <input
+                class="u-input"
+                id="pr-user"
+                name="username"
+                type="text"
+                maxlength="20"
+                autocomplete="username"
+                autocapitalize="off"
+                spellcheck="false"
+                placeholder="Así te verán en el feed y el ranking"
+                required
+              />
+              <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="username" role="alert"></p>
+            </div>
+
+            <div>
+              <label class="mb-1.5 block font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-email">
+                Correo electrónico
+              </label>
+              <input
+                class="u-input"
+                id="pr-email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="tu@correo.com"
+                required
+              />
+              <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="email" role="alert"></p>
+            </div>
+
+            <div class="hidden" data-invite-field>
+              <label class="mb-1.5 block font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-invite">
+                Código de invitación (opcional)
+              </label>
+              <input
+                class="u-input"
+                id="pr-invite"
+                name="invite_code"
+                type="text"
+                maxlength="16"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="Tu código"
+              />
+              <p class="mt-1 text-[0.68rem] leading-relaxed text-muted" data-invite-help>
+                Si tu correo está admitido para la beta, puedes reservar sin código.
+              </p>
+              <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="invite" role="alert"></p>
+            </div>
+
+            <div>
+              <label class="mb-1.5 flex items-baseline justify-between gap-3 font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-month">
+                Fecha de nacimiento
+                <span class="font-mono text-[0.56rem] normal-case tracking-normal">+{FORM.minAge} años</span>
+              </label>
+              <div class="flex gap-2.5">
+                <select class="u-input" id="pr-month" name="birth_month" aria-label="Mes de nacimiento" required>
+                  <option value="">Mes</option>
+                  <option value="01">Enero</option>
+                  <option value="02">Febrero</option>
+                  <option value="03">Marzo</option>
+                  <option value="04">Abril</option>
+                  <option value="05">Mayo</option>
+                  <option value="06">Junio</option>
+                  <option value="07">Julio</option>
+                  <option value="08">Agosto</option>
+                  <option value="09">Septiembre</option>
+                  <option value="10">Octubre</option>
+                  <option value="11">Noviembre</option>
+                  <option value="12">Diciembre</option>
+                </select>
+                <select class="u-input !max-w-[8.5rem]" id="pr-year" name="birth_year" aria-label="Año de nacimiento" required>
+                  <option value="">Año</option>
+                </select>
+              </div>
+              <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="birth" role="alert"></p>
+            </div>
+
+            <label
+              class="flex cursor-pointer items-start gap-3 rounded-lg border border-line bg-ink/40 p-3 transition-colors hover:border-neon/50"
+              data-gdpr-box
             >
-            <span class="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-muted"
-              >plazas</span
-            >
+              <input type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-[#0AFF7A]" name="gdpr" required />
+              <span class="text-[0.78rem] leading-relaxed text-muted">
+                Acepto la <a href={FORM.legalUrl} target="_blank" rel="noopener" title="Política de privacidad de Ágora" class="text-neon underline underline-offset-2">política de privacidad</a>, incluido el tratamiento de mis datos para el pre-registro.
+              </span>
+            </label>
+
+            <button type="submit" class="u-btn u-btn--primary w-full !py-3.5" data-submit>
+              <span data-submit-text>Reservar mi plaza</span>
+              <Icon name="arrow" class="h-4 w-4" />
+            </button>
+
+            <p class="text-center font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted">
+              Sin tarjeta · Sin suscripción · Datos bajo RGPD
+            </p>
+          </form>
+
+          <!-- Éxito -->
+          <div class="hidden text-center" data-prereg-ok>
+            <div class="mx-auto grid h-16 w-16 place-items-center rounded-full border-2 border-neon/45 bg-neon/10">
+              <Icon name="check" class="h-7 w-7 text-neon" />
+            </div>
+            <h3 class="mt-5 font-display text-lg font-black uppercase">Plaza reservada</h3>
+            <p class="mx-auto mt-3 max-w-xs text-sm text-muted">
+              Revisa tu correo para confirmar la cuenta. Tus recompensas y los 7 días de Rise te
+              esperan el día del lanzamiento.
+            </p>
+            <a class="u-btn u-btn--ghost mt-6" data-mail-link href="#" title="Abrir tu bandeja de entrada para confirmar el correo">Abrir mi correo</a>
+          </div>
+        </div>
+
+        <!-- Ya disponible -->
+        <div class="u-card !bg-surface/85 p-5 sm:p-7" data-phase="live" hidden>
+          <h3 class="font-display text-lg font-black uppercase tracking-wide">Descarga Ágora</h3>
+          <p class="mt-3 text-sm text-muted">
+            Elige tu tienda. La descarga y el registro son gratuitos.
+          </p>
+          <div class="mt-5 grid gap-2.5">
+            {
+              stores.map((s) => (
+                <a
+                  data-store-link={s.key}
+                  class="flex items-center gap-3 rounded-lg border border-line bg-surface/40 px-4 py-3 transition-colors hover:border-neon/50"
+                  title={`Descargar Ágora en ${s.store}`}
+                >
+                  <BrandMark mark={s.mark} class="h-5 w-5" title={s.store} />
+                  <span class="text-left">
+                    <span class="block font-display text-[0.82rem] font-bold uppercase tracking-wide">{s.store}</span>
+                    <span class="block font-mono text-[0.55rem] uppercase tracking-[0.16em] text-muted">{s.sub}</span>
+                  </span>
+                </a>
+              ))
+            }
+          </div>
+          <a href={url('/soporte')} class="mt-5 inline-flex text-[0.8rem] text-neon underline underline-offset-2" title="Soporte de Ágora">
+            ¿Problemas para entrar? Escríbenos
+          </a>
+        </div>
+
+        <!-- Próximamente -->
+        <div class="u-card !bg-surface/85 p-5 sm:p-7" data-phase="upcoming" hidden>
+          <h3 class="font-display text-lg font-black uppercase tracking-wide">Muy pronto en las tiendas</h3>
+          <p class="mt-3 text-sm text-muted">
+            Todavía no hay descarga disponible. Cuando la app se publique, el enlace aparecerá en
+            esta web y en la página de descarga.
+          </p>
+          <a href={url('/descargar')} class="u-btn u-btn--ghost mt-5 w-full" title="Estado de la descarga de Ágora">
+            Ver estado de la descarga
+          </a>
+          <p class="mt-4 text-center font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted">
+            Sin tarjeta · Sin suscripción
           </p>
         </div>
 
-        <form class="mt-5 space-y-3.5" data-prereg novalidate>
-          <div>
-            <label class="mb-1.5 block font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-user">
-              Nombre de usuario
-            </label>
-            <input
-              class="u-input"
-              id="pr-user"
-              name="username"
-              type="text"
-              maxlength="20"
-              autocomplete="username"
-              autocapitalize="off"
-              spellcheck="false"
-              placeholder="Así te verán en el feed y el ranking"
-              required
-            />
-            <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="username" role="alert"></p>
-          </div>
-
-          <div>
-            <label class="mb-1.5 block font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-email">
-              Correo electrónico
-            </label>
-            <input
-              class="u-input"
-              id="pr-email"
-              name="email"
-              type="email"
-              autocomplete="email"
-              placeholder="tu@correo.com"
-              required
-            />
-            <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="email" role="alert"></p>
-          </div>
-
-          <div class="hidden" data-invite-field>
-            <label class="mb-1.5 block font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-invite">
-              Código de invitación (opcional)
-            </label>
-            <input
-              class="u-input"
-              id="pr-invite"
-              name="invite_code"
-              type="text"
-              maxlength="16"
-              autocomplete="off"
-              autocapitalize="characters"
-              spellcheck="false"
-              placeholder="Tu código"
-            />
-            <p class="mt-1 text-[0.68rem] leading-relaxed text-muted" data-invite-help>
-              Si tu correo está admitido para la beta, puedes reservar sin código.
-            </p>
-            <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="invite" role="alert"></p>
-          </div>
-
-          <div>
-            <label class="mb-1.5 flex items-baseline justify-between gap-3 font-mono text-[0.64rem] uppercase tracking-[0.16em] text-muted" for="pr-month">
-              Fecha de nacimiento
-              <span class="font-mono text-[0.56rem] normal-case tracking-normal">+{FORM.minAge} años</span>
-            </label>
-            <div class="flex gap-2.5">
-              <select class="u-input" id="pr-month" name="birth_month" aria-label="Mes de nacimiento" required>
-                <option value="">Mes</option>
-                <option value="01">Enero</option>
-                <option value="02">Febrero</option>
-                <option value="03">Marzo</option>
-                <option value="04">Abril</option>
-                <option value="05">Mayo</option>
-                <option value="06">Junio</option>
-                <option value="07">Julio</option>
-                <option value="08">Agosto</option>
-                <option value="09">Septiembre</option>
-                <option value="10">Octubre</option>
-                <option value="11">Noviembre</option>
-                <option value="12">Diciembre</option>
-              </select>
-              <select class="u-input !max-w-[8.5rem]" id="pr-year" name="birth_year" aria-label="Año de nacimiento" required>
-                <option value="">Año</option>
-              </select>
-            </div>
-            <p class="mt-1 hidden text-[0.72rem] text-danger" data-err="birth" role="alert"></p>
-          </div>
-
-          <label
-            class="flex cursor-pointer items-start gap-3 rounded-lg border border-line bg-ink/40 p-3 transition-colors hover:border-neon/50"
-            data-gdpr-box
-          >
-            <input type="checkbox" class="mt-0.5 h-4 w-4 shrink-0 accent-[#0AFF7A]" name="gdpr" required />
-            <span class="text-[0.78rem] leading-relaxed text-muted">
-              Acepto la <a href={FORM.legalUrl} target="_blank" rel="noopener" title="Política de privacidad de Ágora" class="text-neon underline underline-offset-2">política de privacidad</a>, incluido el tratamiento de mis datos para el pre-registro.
-            </span>
-          </label>
-
-          <button type="submit" class="u-btn u-btn--primary w-full !py-3.5" data-submit>
-            <span data-submit-text>Reservar mi plaza</span>
-            <Icon name="arrow" class="h-4 w-4" />
-          </button>
-
-          <p class="text-center font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted">
-            Sin tarjeta · Sin suscripción · Datos bajo RGPD
+        <!-- Sin datos todavía -->
+        <div class="u-card !bg-surface/85 p-5 sm:p-7" data-phase="unknown">
+          <h3 class="font-display text-lg font-black uppercase tracking-wide">Comprobando disponibilidad</h3>
+          <p class="mt-3 text-sm text-muted">
+            Estamos consultando el estado del pre-registro y de las tiendas. No mostramos ofertas ni
+            enlaces de descarga hasta confirmarlo.
           </p>
-        </form>
-
-        <!-- Éxito -->
-        <div class="hidden text-center" data-prereg-ok>
-          <div class="mx-auto grid h-16 w-16 place-items-center rounded-full border-2 border-neon/45 bg-neon/10">
-            <Icon name="check" class="h-7 w-7 text-neon" />
-          </div>
-          <h3 class="mt-5 font-display text-lg font-black uppercase">Plaza reservada</h3>
-          <p class="mx-auto mt-3 max-w-xs text-sm text-muted">
-            Revisa tu correo para confirmar la cuenta. Tus recompensas y los 7 días de Rise te
-            esperan el día del lanzamiento.
-          </p>
-          <a class="u-btn u-btn--ghost mt-6" data-mail-link href="#" title="Abrir tu bandeja de entrada para confirmar el correo">Abrir mi correo</a>
+          <a href={url('/soporte')} class="u-btn u-btn--ghost mt-5 w-full" title="Soporte de Ágora">
+            Hablar con soporte
+          </a>
         </div>
       </div>
     </div>
@@ -230,24 +389,12 @@ const perks = [
   if (form) {
     const inviteField = form.querySelector('[data-invite-field]');
     const inviteHelp = form.querySelector('[data-invite-help]');
-    const configEndpoint = endpoint.replace(/\/preregister(?:\?.*)?$/, '/config');
-
     const showInviteField = () => inviteField?.classList.remove('hidden');
-    fetch(configEndpoint, { cache: 'no-store' })
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error('config_unavailable')))
-      .then((config) => {
-        if (config?.invite_required === true) showInviteField();
-      })
-      .catch(() => {
-        // El código sigue siendo opcional para la whitelist y el backend decide.
-        showInviteField();
-        if (inviteHelp) inviteHelp.textContent = 'La configuración no está disponible ahora. Puedes indicar un código; el servidor comprobará el acceso.';
-      });
 
-    const year = form.querySelector('#pr-year');
-    const now = new Date().getFullYear();
-    for (let y = now - minAge; y >= now - 100; y--) {
-      year.insertAdjacentHTML('beforeend', `<option value="${y}">${y}</option>`);
+    const ano = form.querySelector('#pr-year');
+    const ahora = new Date().getFullYear();
+    for (let y = ahora - minAge; y >= ahora - 100; y--) {
+      ano.insertAdjacentHTML('beforeend', `<option value="${y}">${y}</option>`);
     }
 
     const err = (k, msg) => {
@@ -272,6 +419,18 @@ const perks = [
       const diff = new Date(Date.now() - birth.getTime()).getUTCFullYear() - 1970;
       return diff >= minAge;
     };
+
+    // El código de invitación solo aplica al formulario de pre-registro y
+    // únicamente cuando la config confirma que el acceso lo exige.
+    window.addEventListener('agora:phase', (event) => {
+      const state = event?.detail;
+      if (state?.phase === 'preregister' && state.inviteRequired === true) {
+        showInviteField();
+      }
+      if (state?.phase === 'unknown' && state.error === true && inviteHelp) {
+        inviteHelp.textContent = 'La configuración no está disponible ahora. El servidor comprobará el acceso.';
+      }
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -326,30 +485,42 @@ const perks = [
           body: JSON.stringify(payload),
           signal: corte,
         });
-        if (res.ok) {
+        const body = await res.json().catch(() => ({}));
+        const outcome = window.AgoraPhase
+          ? window.AgoraPhase.submitOutcome(res.status, body)
+          : { kind: res.ok ? 'ok' : 'error', detail: '' };
+
+        if (outcome.kind === 'ok') {
           const link = form.parentElement.querySelector('[data-mail-link]');
           if (link) link.href = mailbox(email);
           form.classList.add('hidden');
           form.parentElement.querySelector('[data-prereg-ok]')?.classList.remove('hidden');
           return;
         }
-        const body = await res.json().catch(() => ({}));
-        const msg = body?.error?.message || body?.detail || body?.message;
-        const detail = String(msg || '');
-        if (detail.includes('invite_required')) {
+        if (outcome.kind === 'closed') {
+          // El cutoff se activó entre la carga y el envío: cerramos el
+          // formulario y pasamos a la fase de próximamente sin reintentos.
+          if (window.AgoraPhase) window.AgoraPhase.applyClosed(document);
+          return;
+        }
+        if (outcome.kind === 'invite_required') {
           showInviteField();
           err('invite', 'La beta está cerrada. Introduce un código de invitación o usa un correo admitido.');
-        } else if (detail.includes('invite_code')) {
+        } else if (outcome.kind === 'invite_code') {
           showInviteField();
           err('invite', 'El código no existe, ya se usó o ha caducado. Revísalo e inténtalo de nuevo.');
-        } else if (res.status === 409) err('username', msg || 'Ese usuario o correo ya está cogido.');
-        else if (res.status === 422 || res.status === 400) err('username', msg || 'Revisa los datos, algo no cuadra.');
-        else err('email', msg || `El servidor ha respondido ${res.status}. Inténtalo en un momento.`);
+        } else if (outcome.kind === 'conflict') {
+          err('username', outcome.detail || 'Ese usuario o correo ya está cogido.');
+        } else if (outcome.kind === 'validation') {
+          err('username', outcome.detail || 'Revisa los datos, algo no cuadra.');
+        } else {
+          err('email', outcome.detail || `El servidor ha respondido ${res.status}. Inténtalo en un momento.`);
+        }
         console.error('[pre-registro] respuesta', res.status, body);
       } catch (e) {
         // Aquí caen los fallos de red: dominio que no resuelve, CORS o certificado.
         console.error('[pre-registro] no se pudo llamar a', endpoint, e);
-        err('email', 'No hemos podido conectar con el servidor. Escríbenos a support@agoraclan.com y te reservamos la plaza.');
+        err('email', 'No hemos podido conectar con el servidor. Inténtalo de nuevo en unos minutos o escríbenos a agoragaming99@gmail.com.');
       }
       btn.disabled = false;
       txt.textContent = prev;

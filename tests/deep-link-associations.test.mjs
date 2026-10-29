@@ -243,8 +243,10 @@ test('build emits both artifacts and does not expose store links while APP.live 
   assert.match(tournament, /Te han invitado a un torneo/);
   assert.match(referral, /\/descargar/);
   assert.match(tournament, /\/descargar/);
-  assert.doesNotMatch(referral, /play\.google\.com/);
-  assert.doesNotMatch(tournament, /play\.google\.com/);
+  // Las URLs pueden viajar en el módulo de datos; el marcado no las enlaza.
+  const markup = (html) => html.replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '');
+  assert.doesNotMatch(markup(referral), /play\.google\.com/);
+  assert.doesNotMatch(markup(tournament), /play\.google\.com/);
 });
 
 test('build inputs do not depend on the retired alternate landing', async () => {

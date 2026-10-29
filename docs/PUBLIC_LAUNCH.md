@@ -2,7 +2,7 @@
 
 ## Estado que se conserva durante esta preparación
 
-Producción sigue con ALLOW_SIGNUP=false, INVITE_REQUIRED=false y sin founder_preregistration_cutoff_at. Cuentas existentes conservan acceso; el prerregistro continúa hasta fijar su corte. No se envían versiones a revisión pública ni se publican en las tiendas en esta ejecución. QA físico final de iPhone sigue pendiente. El acuerdo existente de apps pagadas Apple queda pendiente por selección expresa del titular tras401 tanto en API web como formulario oficial; no confundir con el PLA ya aceptado.
+Producción sigue con ALLOW_SIGNUP=false, INVITE_REQUIRED=false y sin founder_preregistration_cutoff_at. Cuentas existentes conservan acceso; el prerregistro continúa hasta fijar su corte. No se envían versiones a revisión pública ni se publican en las tiendas en esta ejecución. QA físico final de iPhone sigue pendiente. El acuerdo de apps pagadas Apple está activo y actualizado, verificado el29oct2026 tras la aceptación del titular; el PLA también está aceptado. No repetir la aceptación.
 
 ## Integración por propietario de la landing
 
@@ -20,7 +20,7 @@ Candidatos actuales sin recompilar por cambio de contrato aditivo: Android1.0.38
 
 Completar primero QA físico Apple: instalar IPA, Google/Apple login, compra Sandbox de pack/Rise, restauración, notificaciones/deep links y casos de gesto pendientes. El error nativo Apple6003 sigue abierto hasta probar corrección física. Verificar otra vez catálogo, mapeo RevenueCat y cuenta de App Review aislada, sin datos ni compras reales de producción.
 
-Resolver acuerdo pagado Apple. Mantener releaseType=MANUAL. Añadir en el MISMO borrador de review la versión1.0.5/build20, cinco consumibles AR, Rise mensual/anual y grupo Agora Rise22236907. Revisar metadatos/localizaciones/imágenes completas y URLs legales. No enviar solo los primeros IAP sin versión de app: Apple requiere la primera compra de cada tipo con versión nueva. El borrador debe permanecer sin submitted=true hasta QA final.
+Revalidar que el acuerdo pagado Apple sigue activo. Mantener releaseType=MANUAL. Añadir en el MISMO borrador de review la versión1.0.5/build20, cinco consumibles AR, Rise mensual/anual y grupo Agora Rise22236907. Revisar metadatos/localizaciones/imágenes completas y URLs legales. No enviar solo los primeros IAP sin versión de app: Apple requiere la primera compra de cada tipo con versión nueva. El borrador debe permanecer sin submitted=true hasta QA final.
 
 Google Play: conservar Managed publishing on. Producción39 seguirá borrador hasta enviar la revisión final después del iPhone. Comprobar Data safety, ficha, política de privacidad/eliminación, acceso para reviewer, disponibilidad y precios. La ampliación IAP es independiente de la publicación gestionada: sus cambios regionales pueden aplicarse antes y no equivalen a abrir el registro.
 
